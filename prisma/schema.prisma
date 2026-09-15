@@ -11,3 +11,215 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+model User {
+  id       String  @id @default(uuid())
+  name     String
+  email    String  @unique
+  password String // hashed, never plain text
+  phone    String?
+  role     Role    @default(USER)
+
+  isVerified Boolean @default(false)
+  isBanned   Boolean @default(false)
+
+  // Relations
+  blogPosts BlogPost[] // if they're an admin/moderator who writes posts
+  orders    Order[] // if you later attach orders to accounts
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum Role {
+  USER
+  MODERATOR
+  ADMIN
+}
+
+model Scooter {
+  id    String  @id @default(uuid())
+  name  String  @unique
+  brand String
+  price Decimal @db.Decimal(10, 2)
+
+  // Specs
+  engine                 String // ძრავი — e.g. "125cc" or motor wattage
+  maxSpeed               Int // სიჩქარე — km/h, pure number
+  maxRange               Int // მაქსიმალური მანძილი — km
+  weight                 Float // წონა — kg
+  releaseDate            DateTime // გამოშვების თარიღი
+  warranty               String // გარანტია — e.g. "2 years", not always a clean number
+  inclineAngle           String // აღმართი — e.g. "15°" or "20%"
+  chargingTime           String // დატენვის დრო — e.g. "4-6 hours"
+  maxRiderWeight         Int // მგზავრის დასაშვები წონა — kg
+  recommendedRiderWeight Int // მგზავრის რეკომენდირებული წონა — kg
+  motorCount             Int // ძრავების რაოდენობა
+  wheelSize              String // ბორბლის ზომა — e.g. "10 inch"
+  driveType              String // წამყვანი თვალი — front/rear/dual
+  battery                String // ბატარეა — e.g. "48V 20Ah"
+  suspension             String // ამორტიზაცია
+  antiSlipSystem         Boolean // მოცურების საწინააღმდეგო სისტემა — yes/no
+  brakeType              String // მუხრუჭი — e.g. "disc brake"
+  connectivity           String // კავშირი — e.g. "Bluetooth, App"
+  ipRating               String // IP — e.g. "IP54"
+
+  stock     Int      @default(0)
+  images    String[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  spareParts SparePart[] @relation("ScooterSpareParts")
+  orderItems OrderItem[]
+}
+
+model Accessory {
+  id             String            @id @default(uuid())
+  name           String
+  brand          String
+  size           String?
+  sex            Gender
+  category       AccessoryCategory
+  price          Decimal           @db.Decimal(10, 2)
+  description    String?
+  stock          Int               @default(0)
+  images         String[]
+  compatibleWith String[] // scooter model IDs/names if relevant
+  createdAt      DateTime          @default(now())
+  orderItems     OrderItem[]
+}
+
+enum AccessoryCategory {
+  SAFETY_GEAR
+  PROTECTION_MAINTENANCE
+  STORAGE_CARRYING
+  LIGHTING
+  COMFORT_UPGRADES
+  CHARGING_POWER
+  SPARE_PARTS
+}
+
+enum Gender {
+  MEN
+  WOMEN
+  UNISEX
+}
+
+model SparePart {
+  id          String            @id @default(uuid())
+  name        String
+  sku         String            @unique // part number/code for inventory tracking
+  category    SparePartCategory
+  price       Decimal           @db.Decimal(10, 2)
+  description String?
+  stock       Int               @default(0)
+  images      String[]
+
+  // Compatibility
+  compatibleModels Scooter[] @relation("ScooterSpareParts")
+
+  // Optional technical specs
+  material     String?
+  weight       Float?
+  color        String?
+  manufacturer String?
+
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  orderItems OrderItem[]
+}
+
+enum SparePartCategory {
+  BRAKE_PADS
+  TIRES_TUBES
+  MOTOR_PARTS
+  BATTERY_CELLS
+  WHEELS
+  BEARINGS
+  CABLES_WIRING
+  CONTROLLER
+  DISPLAY_PANEL
+  SUSPENSION_PARTS
+  SCREWS_BOLTS
+  OTHER
+}
+
+model BlogPost {
+  id         String  @id @default(uuid())
+  title      String
+  slug       String  @unique // for SEO-friendly URLs like /blog/best-scooters-2026
+  excerpt    String? // short summary for listing pages
+  content    String // main body — markdown or rich text
+  coverImage String?
+
+  authorId String
+  author   User   @relation(fields: [authorId], references: [id])
+
+  status      PostStatus @default(DRAFT)
+  publishedAt DateTime?
+
+  category String?
+  tags     String[]
+
+  views Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum PostStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+model Order {
+  id     String  @id @default(uuid())
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id])
+
+  customerName  String
+  customerEmail String
+  customerPhone String
+
+  // Shipping address, split
+  city       String
+  street     String
+  postalCode String?
+  country    String? @default("Georgia")
+
+  items      OrderItem[]
+  totalPrice Decimal     @db.Decimal(10, 2)
+  status     OrderStatus @default(PENDING)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  SHIPPED
+}
+
+model OrderItem {
+  id String @id @default(uuid())
+
+  orderId String
+  order   Order  @relation(fields: [orderId], references: [id])
+
+  // Only one of these three should be set per item
+  scooterId String?
+  scooter   Scooter? @relation(fields: [scooterId], references: [id])
+
+  accessoryId String?
+  accessory   Accessory? @relation(fields: [accessoryId], references: [id])
+
+  sparePartId String?
+  SparePart   SparePart? @relation(fields: [sparePartId], references: [id])
+
+  quantity Int
+  price    Decimal @db.Decimal(10, 2) // price at time of purchase, not live price
+
+  createdAt DateTime @default(now())
+}
