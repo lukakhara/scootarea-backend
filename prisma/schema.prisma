@@ -75,18 +75,30 @@ model Scooter {
 
 model Accessory {
   id             String            @id @default(uuid())
-  name           String
   brand          String
   size           String?
   sex            Gender
   category       AccessoryCategory
   price          Decimal           @db.Decimal(10, 2)
-  description    String?
   stock          Int               @default(0)
   images         String[]
   compatibleWith String[] // scooter model IDs/names if relevant
   createdAt      DateTime          @default(now())
   orderItems     OrderItem[]
+
+  translations AccessoryTranslation[]
+}
+
+model AccessoryTranslation {
+  id          String    @id @default(uuid())
+  accessoryId String
+  accessory   Accessory @relation(fields: [accessoryId], references: [id], onDelete: Cascade)
+  locale      String // "en" | "ka"
+  name        String
+  description String?
+
+  @@unique([accessoryId, locale])
+  @@index([locale])
 }
 
 enum AccessoryCategory {
@@ -106,14 +118,12 @@ enum Gender {
 }
 
 model SparePart {
-  id          String            @id @default(uuid())
-  name        String
-  sku         String            @unique // part number/code for inventory tracking
-  category    SparePartCategory
-  price       Decimal           @db.Decimal(10, 2)
-  description String?
-  stock       Int               @default(0)
-  images      String[]
+  id       String            @id @default(uuid())
+  sku      String            @unique // part number/code for inventory tracking
+  category SparePartCategory
+  price    Decimal           @db.Decimal(10, 2)
+  stock    Int               @default(0)
+  images   String[]
 
   // Compatibility
   compatibleModels Scooter[] @relation("ScooterSpareParts")
@@ -127,6 +137,20 @@ model SparePart {
   createdAt  DateTime    @default(now())
   updatedAt  DateTime    @updatedAt
   orderItems OrderItem[]
+
+  translations SparePartTranslation[]
+}
+
+model SparePartTranslation {
+  id          String    @id @default(uuid())
+  sparePartId String
+  sparePart   SparePart @relation(fields: [sparePartId], references: [id], onDelete: Cascade)
+  locale      String
+  name        String
+  description String?
+
+  @@unique([sparePartId, locale])
+  @@index([locale])
 }
 
 enum SparePartCategory {
