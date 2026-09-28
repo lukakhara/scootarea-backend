@@ -4,8 +4,10 @@ import { AppError } from "./errors/AppError";
 import { ERROR_MESSAGES } from "./errors/errorMessages";
 import { logger } from "../logger";
 import { requestLogger } from "../src/middleware/requestLogger";
-import scooterRoutes from "./routes/scooters";
-import accessoriesRoutes from "./routes/accessories";
+import scooterRoutes from "./routes/scooters.routes";
+import accessoriesRoutes from "./routes/accessories.routes";
+import partsRoutes from "./routes/sparePart.routes";
+import blogRoutes from  './routes/blog.routes'
 
 import "dotenv/config";
 
@@ -21,6 +23,8 @@ app.get("/", async (req, res) => {
 
 app.use("/scooters", scooterRoutes);
 app.use("/accessories", accessoriesRoutes);
+app.use("/parts", partsRoutes);
+app.use("/blog", blogRoutes);
 
 // 404 handler — after all real routes
 app.use((req, res, next) => {

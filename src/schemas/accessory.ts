@@ -10,7 +10,6 @@ export const accessoryCategoryEnum = z.enum([
   "LIGHTING",
   "COMFORT_UPGRADES",
   "CHARGING_POWER",
-  "SPARE_PARTS",
 ]);
 
 // Reusable helper: correctly coerces query-string booleans.
@@ -24,6 +23,10 @@ const booleanQueryParam = z.preprocess((val) => {
   }
   return val;
 }, z.boolean());
+
+export const idParamSchema = z.object({
+  id: z.uuid("Invalid id format"),
+});
 
 export const accessorySchema = z.object({
   id: z.uuid().optional(),
@@ -70,29 +73,31 @@ export const accessoryQuerySchema = z.object({
     .optional()
     .default(10),
 
+     locale: z.enum(["en", "ka"]).default("en"),
+
+
   sort: z
     .enum([
-      "id",
-      "-id",
       "name",
       "-name",
       "price",
       "-price",
-      "brand",
-      "-brand",
-      "stock",
-      "-stock",
-      "createdAt",
-      "-createdAt",
     ])
-    .default("id"),
+    .default("name"),
+
+ 
 
   // Text filters
   name: z.string().trim().optional(),
   brand: z
     .string()
     .trim()
-    .transform((v) => v.split(",").map((s) => s.trim()))
+    .transform((v) =>
+      v
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean),
+    )
     .optional(),
   size: z.string().trim().optional(),
 
@@ -123,3 +128,4 @@ export const accessoryQuerySchema = z.object({
 });
 
 export type AccessoryQuery = z.infer<typeof accessoryQuerySchema>;
+export type IdParam = z.infer<typeof idParamSchema>;

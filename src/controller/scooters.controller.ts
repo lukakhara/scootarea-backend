@@ -16,6 +16,5 @@ export async function getScooterByIdController(req: Request, res: Response) {
   if (!scooter) {
       new AppError(ERROR_MESSAGES.NOT_FOUND ?? "Scooter not found", 404)
   }
-
   res.json({ data: scooter });
 }

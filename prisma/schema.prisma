@@ -169,26 +169,22 @@ enum SparePartCategory {
 }
 
 model BlogPost {
-  id         String  @id @default(uuid())
-  title      String
-  slug       String  @unique // for SEO-friendly URLs like /blog/best-scooters-2026
-  excerpt    String? // short summary for listing pages
-  content    String // main body — markdown or rich text
-  coverImage String?
-
-  authorId String
-  author   User   @relation(fields: [authorId], references: [id])
-
-  status      PostStatus @default(DRAFT)
+  id          String    @id @default(uuid())
+  slug        String
+  locale      String   
+  title       String
+  content     String
+  excerpt     String?
+  coverImage  String? // hero/thumbnail image for listings
+  images      String[]  @default([]) // additional in-body/gallery images (Cloudinary URLs)
+  authorId    String
+  author      User      @relation(fields: [authorId], references: [id])
+  published   Boolean   @default(false)
   publishedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
-  category String?
-  tags     String[]
-
-  views Int @default(0)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  @@unique([slug, locale])
 }
 
 enum PostStatus {

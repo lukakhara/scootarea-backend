@@ -88,24 +88,14 @@ export const querySchema = z.object({
 
   sort: z
     .enum([
-      "id",
-      "-id",
       "name",
       "-name",
       "price",
       "-price",
-      "maxSpeed",
-      "-maxSpeed",
-      "maxRange",
-      "-maxRange",
-      "weight",
-      "-weight",
       "releaseDate",
       "-releaseDate",
-      "stock",
-      "-stock",
     ])
-    .default("id"),
+    .default("name"),
 
   // Text filters — matched against actual string fields
   name: z.string().trim().optional(),
