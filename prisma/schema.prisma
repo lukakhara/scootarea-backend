@@ -171,12 +171,13 @@ enum SparePartCategory {
 model BlogPost {
   id          String    @id @default(uuid())
   slug        String
-  locale      String   
+  locale      String
   title       String
   content     String
   excerpt     String?
   coverImage  String? // hero/thumbnail image for listings
   images      String[]  @default([]) // additional in-body/gallery images (Cloudinary URLs)
+  videoUrl    String?
   authorId    String
   author      User      @relation(fields: [authorId], references: [id])
   published   Boolean   @default(false)

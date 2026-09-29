@@ -25,7 +25,7 @@ const booleanQueryParam = z.preprocess((val) => {
 }, z.boolean());
 
 export const idParamSchema = z.object({
-  id: z.uuid("Invalid id format"),
+  id: z.guid("Invalid id format"),
 });
 
 export const accessorySchema = z.object({
@@ -73,20 +73,9 @@ export const accessoryQuerySchema = z.object({
     .optional()
     .default(10),
 
-     locale: z.enum(["en", "ka"]).default("en"),
+  locale: z.enum(["en", "ka"]).default("en"),
 
-
-  sort: z
-    .enum([
-      "name",
-      "-name",
-      "price",
-      "-price",
-    ])
-    .default("name"),
-
- 
-
+  sort: z.enum(["name", "-name", "price", "-price"]).default("name"),
   // Text filters
   name: z.string().trim().optional(),
   brand: z
