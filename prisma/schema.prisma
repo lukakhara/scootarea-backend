@@ -71,6 +71,9 @@ model Scooter {
 
   spareParts SparePart[] @relation("ScooterSpareParts")
   orderItems OrderItem[]
+
+  discountPrice  Decimal?  @db.Decimal(10, 2) // null = no discount
+  discountEndsAt DateTime? // optional: time-limited sale
 }
 
 model Accessory {
@@ -87,6 +90,9 @@ model Accessory {
   orderItems     OrderItem[]
 
   translations AccessoryTranslation[]
+
+  discountPrice  Decimal?  @db.Decimal(10, 2) // null = no discount
+  discountEndsAt DateTime? // optional: time-limited sale
 }
 
 model AccessoryTranslation {
@@ -139,6 +145,9 @@ model SparePart {
   orderItems OrderItem[]
 
   translations SparePartTranslation[]
+
+  discountPrice  Decimal?  @db.Decimal(10, 2) // null = no discount
+  discountEndsAt DateTime? // optional: time-limited sale
 }
 
 model SparePartTranslation {
@@ -239,8 +248,8 @@ model OrderItem {
   sparePartId String?
   SparePart   SparePart? @relation(fields: [sparePartId], references: [id])
 
-  quantity Int
-  price    Decimal @db.Decimal(10, 2) // price at time of purchase, not live price
+  quantity  Int
+  unitPrice Decimal @db.Decimal(10, 2) // price actually paid per unitce
 
   createdAt DateTime @default(now())
 }
