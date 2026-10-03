@@ -117,7 +117,25 @@ function parseSort(sort: string): Prisma.AccessoryOrderByWithRelationInput {
   return { [field]: isDescending ? "desc" : "asc" };
 }
 
-export async function getAccessoryById({ id }: IdParam) {
-  const result = await prisma.accessory.findUnique({ where: { id } });
-  return result;
+export async function getAccessoryById({
+  id,
+  locale,
+}: IdParam & { locale: string }) {
+  const result = await prisma.accessory.findUnique({
+    where: { id },
+    include: {
+      translations: { where: { locale } },
+    },
+  });
+
+  if (!result) return null;
+
+  const { translations, ...rest } = result;
+  const translation = translations[0];
+
+  return {
+    ...rest,
+    name: translation?.name ?? "",
+    description: translation?.description ?? null,
+  };
 }
