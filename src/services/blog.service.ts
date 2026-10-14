@@ -26,9 +26,8 @@ export async function getBlogPosts({ locale, page, limit, search }: BlogQuery) {
         excerpt: true,
         coverImage: true,
         published: true,
-        publishedAt: true,
-        author: { select: authorSelect },
-        
+        publishedAt: true, 
+        images:true
       },
       orderBy: { publishedAt: "desc" },
       skip: (page - 1) * limit,

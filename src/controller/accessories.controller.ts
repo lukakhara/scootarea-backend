@@ -13,6 +13,7 @@ export async function getAccessoryById(req: Request, res: Response) {
   console.log("ID:", req.params.id);
   console.log("TYPE:", typeof req.params.id);
   const { id } = req.validatedParams as IdParam;
-  const result = await productService.getAccessoryById({id});
+  const locale = (req.query.locale as string) ?? "en";
+  const result = await productService.getAccessoryById({ id, locale });
   res.status(200).json(result);
 }
