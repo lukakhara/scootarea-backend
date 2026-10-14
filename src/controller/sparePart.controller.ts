@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
 import * as sparePartService from "../services/sparePart.service";
-import type { SparePartQuery } from "../schemas/sparePart";
+import type { SparePartQuery } from "../schemas/sparePart.schema";
 import { AppError } from "@/errors/AppError";
 import { ERROR_MESSAGES } from "@/errors/errorMessages";
 

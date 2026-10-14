@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
 import * as blogService from "../services/blog.service";
-import type { BlogQuery, BlogIdParam } from "../schemas/blog";
+import type { BlogQuery, BlogIdParam } from "../schemas/blog.schema";
 
 export async function getAllPosts(req: Request, res: Response) {
   const query = req.validatedQuery as BlogQuery;

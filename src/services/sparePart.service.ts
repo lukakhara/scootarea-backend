@@ -1,6 +1,6 @@
 import { prisma } from "../lib/prisma";
 import type { Prisma } from "../../generated/prisma/client";
-import type { SparePartQuery } from "../schemas/sparePart";
+import type { SparePartQuery } from "../schemas/sparePart.schema";
 
 export async function getSpareParts(query: SparePartQuery) {
   const {

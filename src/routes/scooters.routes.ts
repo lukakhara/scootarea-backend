@@ -1,7 +1,10 @@
 import { Router } from "express";
 import * as scootersController from "../controller/scooters.controller";
-import { idParamSchema, querySchema } from "../schemas/scooter";
-import { validateParams, validateQuery } from "@/middleware/validate";
+import { idParamSchema, querySchema } from "../schemas/scooter.schema";
+import {
+  validateParams,
+  validateQuery,
+} from "@/middleware/validate.middleware";
 
 const router = Router();
 

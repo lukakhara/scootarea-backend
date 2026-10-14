@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
 import * as productService from "../services/accessory.service";
-import type { AccessoryQuery, IdParam } from "../schemas/accessory";
+import type { AccessoryQuery, IdParam } from "../schemas/accessory.schema";
 
 export async function getAllAccessories(req: Request, res: Response) {
   const query = req.validatedQuery as AccessoryQuery;

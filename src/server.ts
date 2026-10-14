@@ -3,7 +3,7 @@ import cors from "cors";
 import { AppError } from "./errors/AppError";
 import { ERROR_MESSAGES } from "./errors/errorMessages";
 import { logger } from "../logger";
-import { requestLogger } from "../src/middleware/requestLogger";
+import { requestLogger } from "./middleware/requestLogger.middleware";
 import scooterRoutes from "./routes/scooters.routes";
 import accessoriesRoutes from "./routes/accessories.routes";
 import partsRoutes from "./routes/sparePart.routes";

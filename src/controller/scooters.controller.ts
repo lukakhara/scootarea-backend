@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
 import * as productService from "../services/scooter.service";
-import type { ScooterQuery } from "../schemas/scooter";
+import type { ScooterQuery } from "../schemas/scooter.schema";
 import { AppError } from "@/errors/AppError";
 import { ERROR_MESSAGES } from "@/errors/errorMessages";
 
@@ -14,7 +14,7 @@ export async function getScooterByIdController(req: Request, res: Response) {
   const { id } = req.validatedParams as { id: string };
   const scooter = await productService.getScooterById(id);
   if (!scooter) {
-      new AppError(ERROR_MESSAGES.NOT_FOUND ?? "Scooter not found", 404)
+    new AppError(ERROR_MESSAGES.NOT_FOUND ?? "Scooter not found", 404);
   }
   res.json({ data: scooter });
 }

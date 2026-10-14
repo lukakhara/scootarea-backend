@@ -1,7 +1,7 @@
 // services/accessory.service.ts
 import { prisma } from "../lib/prisma"; // adjust to your prisma client export
 import type { Prisma } from "../../generated/prisma/client"; // adjust to your generated path
-import type { AccessoryQuery, IdParam } from "../schemas/accessory";
+import type { AccessoryQuery, IdParam } from "../schemas/accessory.schema";
 
 export async function getAccessories(query: AccessoryQuery) {
   const {
