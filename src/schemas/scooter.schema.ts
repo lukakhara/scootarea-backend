@@ -60,8 +60,6 @@ export const idParamSchema = z.object({
 });
 
 
-
-
 // Zod schemas for CRUD endpoints
 export const createScooterSchema = scooterSchema.omit({
   id: true,
