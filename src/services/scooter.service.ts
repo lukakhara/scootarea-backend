@@ -1,7 +1,7 @@
 // services/scooter.service.ts
 import { prisma } from "../lib/prisma"; // adjust to your prisma client export
 import type { Prisma } from "../../generated/prisma/client"; // adjust to your generated path
-import type { ScooterQuery } from "../schemas/scooter.schema";
+import type { ScooterInput, ScooterQuery } from "../schemas/scooter.schema";
 
 export async function getScooters(query: ScooterQuery) {
   const {
@@ -79,8 +79,13 @@ export async function getScooterById(id: string) {
   return scooter; // null if not found — controller decides how to respond
 }
 
+export async function createScooter(data:ScooterInput){
+  return prisma.scooter.create({data})
+}
+
 function parseSort(sort: string): Prisma.ScooterOrderByWithRelationInput {
   const isDescending = sort.startsWith("-");
   const field = isDescending ? sort.slice(1) : sort;
   return { [field]: isDescending ? "desc" : "asc" };
 }
+

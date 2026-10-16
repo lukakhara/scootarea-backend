@@ -71,6 +71,7 @@ export const updateScooterSchema = createScooterSchema.partial();
 
 // TypeScript types derived from the Zod schemas
 export type ScooterInput = z.infer<typeof createScooterSchema>;
+
 export type ScooterUpdateInput = z.infer<typeof updateScooterSchema>;
 
 export const querySchema = z.object({
