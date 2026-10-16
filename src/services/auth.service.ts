@@ -1,4 +1,4 @@
-import { UserLoginSchema, UserRegisterBody } from "@/schemas/auth.schema";
+import { UserLoginBody, UserRegisterBody } from "@/schemas/auth.schema";
 import { prisma } from "../lib/prisma";
 import { AppError } from "@/errors/AppError";
 import { ERROR_MESSAGES } from "@/errors/errorMessages";
@@ -49,14 +49,14 @@ export async function registerUser(data: UserRegisterBody) {
   }
 }
 
-export async function loginUser(data: UserLoginSchema) {
+export async function loginUser(data: UserLoginBody) {
   const user = await prisma.user.findUnique({
     where: { email: data.email },
   });
 
   const valid = user && (await argon2.verify(user.password, data.password));
   if (!user || !valid) {
-    return new AppError(ERROR_MESSAGES.INVALID_CREDENTIALS, 401);
+     throw new AppError(ERROR_MESSAGES.INVALID_CREDENTIALS, 401);
   }
 
   return {
@@ -67,4 +67,13 @@ export async function loginUser(data: UserLoginSchema) {
     role: user.role,
     createdAt: user.createdAt,
   };
+}
+
+export async function getCurrentUser(userId: string) {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: publicUserSelect,
+  });
+  if (!user) throw new AppError(ERROR_MESSAGES.UNAUTHORIZED, 401);
+  return user;
 }

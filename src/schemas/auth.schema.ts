@@ -2,7 +2,9 @@ import z from "zod";
 
 export const userRegisterSchema = z.object({
   id: z.uuid().optional(),
-  name: z.string().min(5, "name is required"),
+  name: z
+    .string()
+    .min(4, "name is required (must containt 4 characters at least"),
   email: z.email("Please enter a valid email address"),
   password: z
     .string()
@@ -25,7 +27,7 @@ export const userRegisterSchema = z.object({
   phone: z.string(""),
 });
 
-export const loginSchema = userRegisterSchema.omit({name:true, phone:true});
+export const loginSchema = userRegisterSchema.omit({ name: true, phone: true });
 
-export type  UserRegisterBody =  z.infer<typeof userRegisterSchema>
-export type UserLoginSchema = z.infer<typeof userRegisterSchema>
+export type UserRegisterBody = z.infer<typeof userRegisterSchema>;
+export type UserLoginBody = z.infer<typeof loginSchema>;

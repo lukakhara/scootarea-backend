@@ -1,10 +1,21 @@
 import type { Request, Response, NextFunction } from "express";
-import { registerUser, loginUser } from "@/services/auth.service";
-import { UserRegisterBody, UserLoginSchema } from "@/schemas/auth.schema";
+import {
+  registerUser,
+  loginUser,
+  getCurrentUser,
+} from "@/services/auth.service";
+import { UserRegisterBody, UserLoginBody } from "@/schemas/auth.schema";
 
 export async function registerUserController(req: Request, res: Response) {
   const body = req.validatedBody as UserRegisterBody;
-  const user = await registerUser(body);
+  const result = await registerUser(body);
+
+  return res.status(201).json(result);
+}
+
+export async function loginUserController(req: Request, res: Response) {
+  const body = req.validatedBody as UserLoginBody;
+  const user = await loginUser(body);
 
   // new session ID on login (prevents session fixation)
   await new Promise<void>((resolve, reject) =>
@@ -17,14 +28,8 @@ export async function registerUserController(req: Request, res: Response) {
   await new Promise<void>((resolve, reject) =>
     req.session.save((err) => (err ? reject(err) : resolve())),
   );
-
-  return res.status(201).json(user);
-}
-
-export async function loginUserController(req: Request, res: Response) {
-  const body = req.validatedBody as UserLoginSchema;
-  const result = await loginUser(body);
-  return res.status(201).json(result);
+  
+  return res.status(200).json(user);
 }
 
 export function logoutUserController(
@@ -37,4 +42,8 @@ export function logoutUserController(
     res.clearCookie("sid");
     res.status(204).end();
   });
+}
+export async function meController(req: Request, res: Response) {
+  const user = await getCurrentUser(req.session.userId!);
+  return res.json(user);
 }
