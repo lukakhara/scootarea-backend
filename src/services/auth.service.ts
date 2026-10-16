@@ -49,6 +49,22 @@ export async function registerUser(data: UserRegisterBody) {
   }
 }
 
-export async function loginUser(data:UserLoginSchema){
-    const 
+export async function loginUser(data: UserLoginSchema) {
+  const user = await prisma.user.findUnique({
+    where: { email: data.email },
+  });
+
+  const valid = user && (await argon2.verify(user.password, data.password));
+  if (!user || !valid) {
+    return new AppError(ERROR_MESSAGES.INVALID_CREDENTIALS, 401);
+  }
+
+  return {
+    id: user.id,
+    email: user.email,
+    name: user.name,
+    phone: user.phone,
+    role: user.role,
+    createdAt: user.createdAt,
+  };
 }

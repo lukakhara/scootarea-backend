@@ -1,21 +1,24 @@
+import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import { AppError } from "./errors/AppError";
 import { ERROR_MESSAGES } from "./errors/errorMessages";
-import { logger } from "../logger";
 import { requestLogger } from "./middleware/requestLogger.middleware";
+import { logger } from "../logger";
 import scooterRoutes from "./routes/scooters.routes";
 import accessoriesRoutes from "./routes/accessories.routes";
 import partsRoutes from "./routes/sparePart.routes";
-import blogRoutes from  './routes/blog.routes'
+import blogRoutes from "./routes/blog.routes";
+import authRoutes from "./routes/auth.routes";
 
-import "dotenv/config";
+import { sessionMiddleware } from "./config/session";
 
 const app = express();
 
-app.use(cors());
+app.use(cors({ origin: process.env.FRONTEND_URL, credentials: true }));
 app.use(express.json());
 app.use(requestLogger); // now runs before routes, so it actually logs requests
+app.use(sessionMiddleware);
 
 app.get("/", async (req, res) => {
   res.send("server is running 🏃‍♀️‍➡️🥳");
@@ -25,6 +28,7 @@ app.use("/scooters", scooterRoutes);
 app.use("/accessories", accessoriesRoutes);
 app.use("/parts", partsRoutes);
 app.use("/blog", blogRoutes);
+app.use("/auth", authRoutes);
 
 // 404 handler — after all real routes
 app.use((req, res, next) => {
@@ -33,7 +37,12 @@ app.use((req, res, next) => {
 
 // Error-handling middleware — MUST be last, MUST have 4 params
 app.use(
-  (err: unknown, req: express.Request, res: express.Response, next: express.NextFunction) => {
+  (
+    err: unknown,
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction,
+  ) => {
     if (err instanceof AppError) {
       return res.status(err.statusCode).json({
         message: err.message,
@@ -45,7 +54,6 @@ app.use(
     res.status(500).json({ message: "Internal server error" });
   },
 );
-
 
 app.listen(5000, () => {
   logger.info(`Server running 🏃‍♀️‍➡️🏃‍♀️‍➡️`);

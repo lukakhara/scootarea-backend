@@ -1,7 +1,7 @@
 import { validateBody } from "@/middleware/validate.middleware";
 import { loginSchema, userRegisterSchema } from "@/schemas/auth.schema";
 import { Router } from "express";
-import { registerUserController } from "@/controller/auth.controller";
+import { loginUserController, logoutUserController, registerUserController } from "@/controller/auth.controller";
 
 const router = Router();
 
@@ -9,4 +9,6 @@ router.post("/register", validateBody(userRegisterSchema), registerUserControlle
 
 router.post("/login", validateBody(loginSchema), loginUserController);
 
-router.post("/logout");
+router.post("/logout",logoutUserController);
+
+export default router
