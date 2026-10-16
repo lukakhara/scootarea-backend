@@ -10,6 +10,17 @@ export const requireAuth = (
   next();
 };
 
+export const requireModerator = (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  if (req.session.role !== "MODERATOR")
+    return res.status(403).json({ message: "Forbidden" });
+  next();
+};
+
+
 export const requireAdmin = (
   req: Request,
   res: Response,
