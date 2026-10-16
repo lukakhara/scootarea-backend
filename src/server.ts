@@ -12,6 +12,7 @@ import blogRoutes from "./routes/blog.routes";
 import authRoutes from "./routes/auth.routes";
 
 import { sessionMiddleware } from "./config/session";
+import { globalLimiter } from "./middleware/rateLimit.middleware";
 
 const app = express();
 
@@ -29,6 +30,9 @@ app.use("/accessories", accessoriesRoutes);
 app.use("/parts", partsRoutes);
 app.use("/blog", blogRoutes);
 app.use("/auth", authRoutes);
+
+app.set("trust proxy", 1);
+app.use(globalLimiter);
 
 // 404 handler — after all real routes
 app.use((req, res, next) => {
