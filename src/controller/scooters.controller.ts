@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
-import {getScooters,getScooterById, createScooter} from "../services/scooter.service";
-import type { ScooterInput, ScooterQuery } from "../schemas/scooter.schema";
+import {getScooters,getScooterById, createScooter, updateScooter} from "../services/scooter.service";
+import type { ScooterInput, ScooterQuery,UpdateScooterInput } from "../schemas/scooter.schema";
 import { AppError } from "@/errors/AppError";
 import { ERROR_MESSAGES } from "@/errors/errorMessages";
 
@@ -23,4 +23,16 @@ export async function addScooter(req: Request, res: Response) {
   const data = req.validatedBody as ScooterInput;
   const result = await createScooter(data);
   res.status(200).json(result);
+}
+export async function updateScooterController(req: Request, res: Response) {
+  const { id } = req.validatedParams as { id: string };
+  const data = req.validatedBody as UpdateScooterInput;
+
+  const scooter = await updateScooter(id, data);
+
+  if (!scooter) {
+    return res.status(404).json({ message: "Scooter not found" });
+  }
+
+  res.status(200).json(scooter);
 }

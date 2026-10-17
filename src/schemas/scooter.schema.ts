@@ -1,5 +1,9 @@
 import { z } from "zod";
 
+export const idParamSchema = z.object({
+  id: z.uuid("Invalid id format"),
+});
+
 export const scooterSchema = z.object({
   id: z.uuid().optional(),
   name: z.string().min(1, "Name is required"),
@@ -55,25 +59,6 @@ export const scooterSchema = z.object({
   updatedAt: z.coerce.date().optional(),
 });
 
-export const idParamSchema = z.object({
-  id: z.uuid("Invalid id format"),
-});
-
-
-// Zod schemas for CRUD endpoints
-export const createScooterSchema = scooterSchema.omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-});
-
-export const updateScooterSchema = createScooterSchema.partial();
-
-// TypeScript types derived from the Zod schemas
-export type ScooterInput = z.infer<typeof createScooterSchema>;
-
-export type ScooterUpdateInput = z.infer<typeof updateScooterSchema>;
-
 export const querySchema = z.object({
   page: z.coerce.number().int().positive().optional().default(1),
   limit: z.coerce
@@ -86,23 +71,16 @@ export const querySchema = z.object({
     .default(10),
 
   sort: z
-    .enum([
-      "name",
-      "-name",
-      "price",
-      "-price",
-      "releaseDate",
-      "-releaseDate",
-    ])
+    .enum(["name", "-name", "price", "-price", "releaseDate", "-releaseDate"])
     .default("name"),
 
   // Text filters — matched against actual string fields
   name: z.string().trim().optional(),
   brand: z
-  .string()
-  .trim()
-  .transform((v) => v.split(",").map((s) => s.trim()))
-  .optional(),
+    .string()
+    .trim()
+    .transform((v) => v.split(",").map((s) => s.trim()))
+    .optional(),
   engine: z.string().trim().optional(),
   wheelSize: z.string().trim().optional(),
   brakeType: z.string().trim().optional(),
@@ -132,5 +110,19 @@ export const querySchema = z.object({
   inStock: z.coerce.boolean().optional(),
 });
 
-export type ScooterQuery = z.infer<typeof querySchema>;
+// Zod schemas for CRUD endpoints
+export const createScooterSchema = scooterSchema.omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const updateScooterSchema = createScooterSchema.partial();
+
 export type IdParam = z.infer<typeof idParamSchema>;
+// TypeScript types derived from the Zod schemas
+export type ScooterInput = z.infer<typeof createScooterSchema>;
+
+export type UpdateScooterInput = z.infer<typeof updateScooterSchema>;
+
+export type ScooterQuery = z.infer<typeof querySchema>;

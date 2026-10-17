@@ -6,7 +6,10 @@ export const ERROR_MESSAGES = {
   COMMENT_NOT_FOUND: "Comment not found",
 
   EMAIL_EXISTS: "Email already exists",
+  ALREADY_EXISTS:"ALREADY_EXISTS",
   INVALID_CREDENTIALS: "Invalid email or password",
+  INVALID_REFERENCE:"Invalid reference",
+  INVALID_JSON:"Invalid_Json",
 
   AUTH_REQUIRED: "Authentication required",
   ACCESS_DENIED: "Access denied",

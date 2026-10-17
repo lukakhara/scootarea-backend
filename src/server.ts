@@ -13,6 +13,7 @@ import authRoutes from "./routes/auth.routes";
 
 import { sessionMiddleware } from "./config/session";
 import { globalLimiter } from "./middleware/rateLimit.middleware";
+import { errorHandler } from "./middleware/errorHandler";
 
 const app = express();
 
@@ -40,24 +41,7 @@ app.use((req, res, next) => {
 });
 
 // Error-handling middleware — MUST be last, MUST have 4 params
-app.use(
-  (
-    err: unknown,
-    req: express.Request,
-    res: express.Response,
-    next: express.NextFunction,
-  ) => {
-    if (err instanceof AppError) {
-      return res.status(err.statusCode).json({
-        message: err.message,
-        details: err.details,
-      });
-    }
-
-    logger.error(err);
-    res.status(500).json({ message: "Internal server error" });
-  },
-);
+app.use(errorHandler)
 
 app.listen(5000, () => {
   logger.info(`Server running 🏃‍♀️‍➡️🏃‍♀️‍➡️`);

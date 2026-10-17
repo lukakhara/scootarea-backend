@@ -1,7 +1,11 @@
 // services/scooter.service.ts
 import { prisma } from "../lib/prisma"; // adjust to your prisma client export
-import type { Prisma } from "../../generated/prisma/client"; // adjust to your generated path
-import type { ScooterInput, ScooterQuery } from "../schemas/scooter.schema";
+import { Prisma } from "../../generated/prisma/client"; // adjust to your generated path
+import type {
+  ScooterInput,
+  ScooterQuery,
+  UpdateScooterInput,
+} from "../schemas/scooter.schema";
 
 export async function getScooters(query: ScooterQuery) {
   const {
@@ -79,8 +83,15 @@ export async function getScooterById(id: string) {
   return scooter; // null if not found — controller decides how to respond
 }
 
-export async function createScooter(data:ScooterInput){
-  return prisma.scooter.create({data})
+export async function createScooter(data: ScooterInput) {
+  return prisma.scooter.create({ data });
+}
+
+export async function updateScooter(id: string, data: UpdateScooterInput) {
+  return await prisma.scooter.update({
+    where: { id },
+    data: stripUndefined(data),
+  });
 }
 
 function parseSort(sort: string): Prisma.ScooterOrderByWithRelationInput {
@@ -89,3 +100,8 @@ function parseSort(sort: string): Prisma.ScooterOrderByWithRelationInput {
   return { [field]: isDescending ? "desc" : "asc" };
 }
 
+function stripUndefined<T extends object>(obj: T) {
+  return Object.fromEntries(
+    Object.entries(obj).filter(([, v]) => v !== undefined),
+  ) as { [K in keyof T]?: Exclude<T[K], undefined> };
+}
