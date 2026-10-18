@@ -19,7 +19,7 @@ import {
 
 const router = Router();
 
-router.get("/", validateQuery(querySchema), getAllScooters);
+router.get("/",validateQuery(querySchema), getAllScooters);
 router.get("/:id", validateParams(idParamSchema), getScooterByIdController);
 router.post("/", validateBody(createScooterSchema), addScooter);
 router.patch(

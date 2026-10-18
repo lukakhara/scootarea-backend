@@ -1,23 +1,40 @@
 import type { Request, Response } from "express";
 import * as sparePartService from "../services/sparePart.service";
-import type { SparePartQuery } from "../schemas/sparePart.schema";
-import { AppError } from "@/errors/AppError";
-import { ERROR_MESSAGES } from "@/errors/errorMessages";
+import type {
+  IdParam,
+  SparePartInput,
+  SparePartQuery,
+  SparePartUpdateInput,
+} from "../schemas/sparePart.schema";
 
 export async function getAllSpareParts(req: Request, res: Response) {
   const query = req.validatedQuery as SparePartQuery;
-  const result = await sparePartService.getSpareParts(query);
-  res.status(200).json(result);
+  res.status(200).json(await sparePartService.getSpareParts(query));
 }
 
 export async function getSparePartByIdController(req: Request, res: Response) {
-  const { id } = req.validatedParams as { id: string };
-  const locale = (req.query.locale as string) ?? "en";
+  const { id } = req.validatedParams as IdParam;
+  const { locale } = req.validatedQuery as { locale: string };
+  const result = await sparePartService.getSparePartById({ id, locale })
+  res.status(200).json(result);
+}
 
-  const sparePart = await sparePartService.getSparePartById(id, locale);
-  if (!sparePart) {
-    throw new AppError(ERROR_MESSAGES.NOT_FOUND ?? "Spare part not found", 404);
-  }
+export async function addSparePartController(req: Request, res: Response) {
+  const result = await sparePartService.addSparePart(req.body as SparePartInput);
+  res.status(201).json(result);
+}
 
-  res.json({ data: sparePart });
+export async function updateSparePartController(req: Request, res: Response) {
+  const { id } = req.validatedParams as IdParam;
+  const result = await sparePartService.updateSparePart(
+    id,
+    req.body as SparePartUpdateInput,
+  );
+  res.status(200).json(result);
+}
+
+export async function deleteSparePartController(req: Request, res: Response) {
+  const { id } = req.validatedParams as IdParam;
+  await sparePartService.deleteSparePart(id);
+  res.status(204).send();
 }
