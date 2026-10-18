@@ -40,8 +40,21 @@ const translationInclude = (locale: string) => ({
 });
 
 export async function getAccessories(query: AccessoryQuery) {
-  const { page, limit, sort, locale, name, brand, size, category, sex,
-    compatibleWith, inStock, minPrice, maxPrice } = query;
+  const {
+    page,
+    limit,
+    sort,
+    locale,
+    name,
+    brand,
+    size,
+    category,
+    sex,
+    compatibleWith,
+    inStock,
+    minPrice,
+    maxPrice,
+  } = query;
 
   const where: Prisma.AccessoryWhereInput = {
     ...(name && {
@@ -116,7 +129,10 @@ export async function getAccessories(query: AccessoryQuery) {
   };
 }
 
-export async function getAccessoryById({ id, locale }: IdParam & { locale: string }) {
+export async function getAccessoryById({
+  id,
+  locale,
+}: IdParam & { locale: string }) {
   const result = await prisma.accessory.findUnique({
     where: { id },
     include: translationInclude(locale),
@@ -135,7 +151,9 @@ export async function updateAccessory(id: string, body: AccessoryUpdateInput) {
         await Promise.all(
           translations.map((t) =>
             tx.accessoryTranslation.upsert({
-              where: { accessoryId_locale: { accessoryId: id, locale: t.locale } },
+              where: {
+                accessoryId_locale: { accessoryId: id, locale: t.locale },
+              },
               update: { name: t.name, description: t.description },
               create: { accessoryId: id, ...t },
             }),
@@ -149,6 +167,26 @@ export async function updateAccessory(id: string, body: AccessoryUpdateInput) {
       });
     });
   } catch (e) {
-    throw new AppError(ERROR_MESSAGES.NOT_FOUND,404)
+    throw new AppError(ERROR_MESSAGES.NOT_FOUND, 404);
+  }
+}
+
+export async function addAccessory(input: AccessoryInput) {
+  const { translations, ...rest } = input;
+
+  return prisma.accessory.create({
+    data: {
+      ...rest,
+      translations: { create: translations },
+    },
+    include: { translations: true },
+  });
+}
+
+export async function deleteAccessory(id: string) {
+  try {
+    return await prisma.accessory.delete({ where: { id } });
+  } catch (e) {
+    throw new AppError(ERROR_MESSAGES.NOT_FOUND, 404);
   }
 }
