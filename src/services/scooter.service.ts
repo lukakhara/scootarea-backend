@@ -90,9 +90,10 @@ export async function createScooter(data: ScooterInput) {
 export async function updateScooter(id: string, data: UpdateScooterInput) {
   return await prisma.scooter.update({
     where: { id },
-    data: stripUndefined(data),
+    data: data,
   });
 }
+
 
 function parseSort(sort: string): Prisma.ScooterOrderByWithRelationInput {
   const isDescending = sort.startsWith("-");
@@ -100,8 +101,4 @@ function parseSort(sort: string): Prisma.ScooterOrderByWithRelationInput {
   return { [field]: isDescending ? "desc" : "asc" };
 }
 
-function stripUndefined<T extends object>(obj: T) {
-  return Object.fromEntries(
-    Object.entries(obj).filter(([, v]) => v !== undefined),
-  ) as { [K in keyof T]?: Exclude<T[K], undefined> };
-}
+

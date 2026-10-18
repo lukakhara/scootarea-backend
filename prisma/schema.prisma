@@ -76,7 +76,7 @@ model Scooter {
   stock     Int      @default(0)
   images    String[]
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime @default(now()) @updatedAt
 
   spareParts SparePart[] @relation("ScooterSpareParts")
   orderItems OrderItem[]
@@ -96,6 +96,7 @@ model Accessory {
   images         String[]
   compatibleWith String[] // scooter model IDs/names if relevant
   createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @default(now()) @updatedAt
   orderItems     OrderItem[]
 
   translations AccessoryTranslation[]
@@ -113,7 +114,7 @@ model AccessoryTranslation {
   description String?
 
   @@unique([accessoryId, locale])
-  @@index([locale])
+  @@index([locale,name])
 }
 
 enum AccessoryCategory {
@@ -150,7 +151,7 @@ model SparePart {
   manufacturer String?
 
   createdAt  DateTime    @default(now())
-  updatedAt  DateTime    @updatedAt
+  updatedAt  DateTime    @default(now()) @updatedAt
   orderItems OrderItem[]
 
   translations SparePartTranslation[]
