@@ -5,16 +5,11 @@ async function main() {
   const hashed = await bcrypt.hash("YourAdminPassword123!", 10);
 
 
-  const addImage = await prisma.blogPost.update({
-    where:{id : "070f8a0c-73d2-4049-ac11-949bc12e9a4e"},
-    data:{
-      images:{
-        push:["https://res.cloudinary.com/us6agyt1/image/upload/v1791188823/blog-isnide-image3.png"]
-      }
-    }
-  })
+const createAdmin = prisma.user.create({data:{name:"admin1",email:"admin1@gmail.com",password:hashed,
+  phone:'1234567891',role:"ADMIN",isVerified:true,isBanned:false
+}})
 
-  console.log("image added :", addImage);
+  console.log("image added :", createAdmin);
 }
 
 main()

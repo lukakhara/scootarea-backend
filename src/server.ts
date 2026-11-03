@@ -26,11 +26,11 @@ app.get("/", async (req, res) => {
   res.send("server is running 🏃‍♀️‍➡️🥳");
 });
 
-app.use("/scooters", scooterRoutes);
-app.use("/accessories", accessoriesRoutes);
-app.use("/parts", partsRoutes);
-app.use("/blog", blogRoutes);
-app.use("/auth", authRoutes);
+app.use("/api/scooters", scooterRoutes);
+app.use("/api/accessories", accessoriesRoutes);
+app.use("/api/parts", partsRoutes);
+app.use("/api/blog", blogRoutes);
+app.use("/api/auth", authRoutes);
 
 app.set("trust proxy", 1);
 app.use(globalLimiter);
