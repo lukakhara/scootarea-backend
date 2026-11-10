@@ -25,4 +25,6 @@ export const ERROR_MESSAGES = {
   TOKEN_EXPIRED:"Token expired",
   NO_COOKIE_PRESENT: "No cookie present",
   INVALID_CSRF_TOKEN: "Invalid CSRF token",
+  OUT_OF_STOCK: "Out of stock",
+  CANNOT_CANCEL_THIS_ORDER: "Cannot cancel this order",
 };

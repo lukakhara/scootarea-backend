@@ -56,7 +56,7 @@ export async function loginUser(data: UserLoginBody) {
 
   const valid = user && (await argon2.verify(user.password, data.password));
   if (!user || !valid) {
-     throw new AppError(ERROR_MESSAGES.INVALID_CREDENTIALS, 401);
+    throw new AppError(ERROR_MESSAGES.INVALID_CREDENTIALS, 401);
   }
 
   return {

@@ -1,8 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
   provider = "prisma-client"
   output   = "../generated/prisma"
@@ -13,22 +8,18 @@ datasource db {
 }
 
 model User {
-  id       String  @id @default(uuid())
-  name     String
-  email    String  @unique
-  password String // hashed, never plain text
-  phone    String?
-  role     Role    @default(USER)
-
-  isVerified Boolean @default(false)
-  isBanned   Boolean @default(false)
-
-  // Relations
-  blogPosts BlogPost[] // if they're an admin/moderator who writes posts
-  orders    Order[] // if you later attach orders to accounts
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id         String     @id @default(uuid())
+  name       String
+  email      String     @unique
+  password   String
+  phone      String?
+  role       Role       @default(USER)
+  isVerified Boolean    @default(false)
+  isBanned   Boolean    @default(false)
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  blogPosts  BlogPost[]
+  orders     Order[]
 }
 
 model Session {
@@ -40,81 +31,159 @@ model Session {
   @@map("session")
 }
 
-enum Role {
-  USER
-  MODERATOR
-  ADMIN
-}
-
 model Scooter {
-  id    String  @id @default(uuid())
-  name  String  @unique
-  brand String
-  price Decimal @db.Decimal(10, 2)
-
-  // Specs
-  engine                 String // ძრავი — e.g. "125cc" or motor wattage
-  maxSpeed               Int // სიჩქარე — km/h, pure number
-  maxRange               Int // მაქსიმალური მანძილი — km
-  weight                 Float // წონა — kg
-  releaseDate            DateTime // გამოშვების თარიღი
-  warranty               String // გარანტია — e.g. "2 years", not always a clean number
-  inclineAngle           String // აღმართი — e.g. "15°" or "20%"
-  chargingTime           String // დატენვის დრო — e.g. "4-6 hours"
-  maxRiderWeight         Int // მგზავრის დასაშვები წონა — kg
-  recommendedRiderWeight Int // მგზავრის რეკომენდირებული წონა — kg
-  motorCount             Int // ძრავების რაოდენობა
-  wheelSize              String // ბორბლის ზომა — e.g. "10 inch"
-  driveType              String // წამყვანი თვალი — front/rear/dual
-  battery                String // ბატარეა — e.g. "48V 20Ah"
-  suspension             String // ამორტიზაცია
-  antiSlipSystem         Boolean // მოცურების საწინააღმდეგო სისტემა — yes/no
-  brakeType              String // მუხრუჭი — e.g. "disc brake"
-  connectivity           String // კავშირი — e.g. "Bluetooth, App"
-  ipRating               String // IP — e.g. "IP54"
-
-  stock     Int      @default(0)
-  images    String[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
-
-  spareParts SparePart[] @relation("ScooterSpareParts")
-  orderItems OrderItem[]
-
-  discountPrice  Decimal?  @db.Decimal(10, 2) // null = no discount
-  discountEndsAt DateTime? // optional: time-limited sale
+  id                     String      @id @default(uuid())
+  name                   String      @unique
+  brand                  String
+  price                  Decimal     @db.Decimal(10, 2)
+  engine                 String
+  maxSpeed               Int
+  maxRange               Int
+  weight                 Float
+  releaseDate            DateTime
+  warranty               String
+  inclineAngle           String
+  chargingTime           String
+  maxRiderWeight         Int
+  recommendedRiderWeight Int
+  motorCount             Int
+  wheelSize              String
+  driveType              String
+  battery                String
+  suspension             String
+  antiSlipSystem         Boolean
+  brakeType              String
+  connectivity           String
+  ipRating               String
+  stock                  Int         @default(0)
+  images                 String[]
+  createdAt              DateTime    @default(now())
+  updatedAt              DateTime    @default(now()) @updatedAt
+  discountEndsAt         DateTime?
+  discountPrice          Decimal?    @db.Decimal(10, 2)
+  orderItems             OrderItem[]
+  spareParts             SparePart[] @relation("ScooterSpareParts")
 }
 
 model Accessory {
-  id             String            @id @default(uuid())
+  id             String                 @id @default(uuid())
   brand          String
   size           String?
   sex            Gender
   category       AccessoryCategory
-  price          Decimal           @db.Decimal(10, 2)
-  stock          Int               @default(0)
+  price          Decimal                @db.Decimal(10, 2)
+  stock          Int                    @default(0)
   images         String[]
-  compatibleWith String[] // scooter model IDs/names if relevant
-  createdAt      DateTime          @default(now())
-  updatedAt      DateTime          @default(now()) @updatedAt
+  compatibleWith String[]
+  createdAt      DateTime               @default(now())
+  discountEndsAt DateTime?
+  discountPrice  Decimal?               @db.Decimal(10, 2)
+  updatedAt      DateTime               @default(now()) @updatedAt
+  translations   AccessoryTranslation[]
   orderItems     OrderItem[]
-
-  translations AccessoryTranslation[]
-
-  discountPrice  Decimal?  @db.Decimal(10, 2) // null = no discount
-  discountEndsAt DateTime? // optional: time-limited sale
 }
 
 model AccessoryTranslation {
   id          String    @id @default(uuid())
   accessoryId String
-  accessory   Accessory @relation(fields: [accessoryId], references: [id], onDelete: Cascade)
-  locale      String // "en" | "ka"
+  locale      String
   name        String
   description String?
+  accessory   Accessory @relation(fields: [accessoryId], references: [id], onDelete: Cascade)
 
   @@unique([accessoryId, locale])
-  @@index([locale,name])
+  @@index([locale, name])
+}
+
+model SparePart {
+  id               String                 @id @default(uuid())
+  sku              String                 @unique
+  category         SparePartCategory
+  price            Decimal                @db.Decimal(10, 2)
+  stock            Int                    @default(0)
+  images           String[]
+  material         String?
+  weight           Float?
+  color            String?
+  manufacturer     String?
+  createdAt        DateTime               @default(now())
+  updatedAt        DateTime               @default(now()) @updatedAt
+  discountEndsAt   DateTime?
+  discountPrice    Decimal?               @db.Decimal(10, 2)
+  orderItems       OrderItem[]
+  translations     SparePartTranslation[]
+  compatibleModels Scooter[]              @relation("ScooterSpareParts")
+}
+
+model SparePartTranslation {
+  id          String    @id @default(uuid())
+  sparePartId String
+  locale      String
+  name        String
+  description String?
+  sparePart   SparePart @relation(fields: [sparePartId], references: [id], onDelete: Cascade)
+
+  @@unique([sparePartId, locale])
+  @@index([locale])
+}
+
+model BlogPost {
+  id          String    @id @default(uuid())
+  title       String
+  slug        String
+  excerpt     String?
+  content     String
+  coverImage  String?
+  authorId    String
+  publishedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  images      String[]  @default([])
+  locale      String
+  published   Boolean   @default(false)
+  videoUrl    String?
+  author      User      @relation(fields: [authorId], references: [id])
+
+  @@unique([slug, locale])
+}
+
+model Order {
+  id            String      @id @default(uuid())
+  userId        String
+  customerName  String
+  customerEmail String
+  customerPhone String
+  city          String
+  street        String
+  postalCode    String?
+  country       String?     @default("Georgia")
+  totalPrice    Decimal     @db.Decimal(10, 2)
+  status        OrderStatus @default(PENDING)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  user          User        @relation(fields: [userId], references: [id])
+  items         OrderItem[]
+}
+
+model OrderItem {
+  id          String     @id @default(uuid())
+  orderId     String
+  scooterId   String?
+  accessoryId String?
+  sparePartId String?
+  quantity    Int
+  createdAt   DateTime   @default(now())
+  unitPrice   Decimal    @db.Decimal(10, 2)
+  accessory   Accessory? @relation(fields: [accessoryId], references: [id])
+  order       Order      @relation(fields: [orderId], references: [id])
+  scooter     Scooter?   @relation(fields: [scooterId], references: [id])
+  SparePart   SparePart? @relation(fields: [sparePartId], references: [id])
+}
+
+enum Role {
+  USER
+  MODERATOR
+  ADMIN
 }
 
 enum AccessoryCategory {
@@ -133,45 +202,6 @@ enum Gender {
   UNISEX
 }
 
-model SparePart {
-  id       String            @id @default(uuid())
-  sku      String            @unique // part number/code for inventory tracking
-  category SparePartCategory
-  price    Decimal           @db.Decimal(10, 2)
-  stock    Int               @default(0)
-  images   String[]
-
-  // Compatibility
-  compatibleModels Scooter[] @relation("ScooterSpareParts")
-
-  // Optional technical specs
-  material     String?
-  weight       Float?
-  color        String?
-  manufacturer String?
-
-  createdAt  DateTime    @default(now())
-  updatedAt  DateTime    @default(now()) @updatedAt
-  orderItems OrderItem[]
-
-  translations SparePartTranslation[]
-
-  discountPrice  Decimal?  @db.Decimal(10, 2) // null = no discount
-  discountEndsAt DateTime? // optional: time-limited sale
-}
-
-model SparePartTranslation {
-  id          String    @id @default(uuid())
-  sparePartId String
-  sparePart   SparePart @relation(fields: [sparePartId], references: [id], onDelete: Cascade)
-  locale      String
-  name        String
-  description String?
-
-  @@unique([sparePartId, locale])
-  @@index([locale])
-}
-
 enum SparePartCategory {
   BRAKE_PADS
   TIRES_TUBES
@@ -187,79 +217,16 @@ enum SparePartCategory {
   OTHER
 }
 
-model BlogPost {
-  id          String    @id @default(uuid())
-  slug        String
-  locale      String
-  title       String
-  content     String
-  excerpt     String?
-  coverImage  String? // hero/thumbnail image for listings
-  images      String[]  @default([]) // additional in-body/gallery images (Cloudinary URLs)
-  videoUrl    String?
-  authorId    String
-  author      User      @relation(fields: [authorId], references: [id])
-  published   Boolean   @default(false)
-  publishedAt DateTime?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-
-  @@unique([slug, locale])
-}
-
 enum PostStatus {
   DRAFT
   PUBLISHED
   ARCHIVED
 }
 
-model Order {
-  id     String  @id @default(uuid())
-  userId String?
-  user   User?   @relation(fields: [userId], references: [id])
-
-  customerName  String
-  customerEmail String
-  customerPhone String
-
-  // Shipping address, split
-  city       String
-  street     String
-  postalCode String?
-  country    String? @default("Georgia")
-
-  items      OrderItem[]
-  totalPrice Decimal     @db.Decimal(10, 2)
-  status     OrderStatus @default(PENDING)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
 enum OrderStatus {
   PENDING
   PROCESSING
   SHIPPED
-}
-
-model OrderItem {
-  id String @id @default(uuid())
-
-  orderId String
-  order   Order  @relation(fields: [orderId], references: [id])
-
-  // Only one of these three should be set per item
-  scooterId String?
-  scooter   Scooter? @relation(fields: [scooterId], references: [id])
-
-  accessoryId String?
-  accessory   Accessory? @relation(fields: [accessoryId], references: [id])
-
-  sparePartId String?
-  SparePart   SparePart? @relation(fields: [sparePartId], references: [id])
-
-  quantity  Int
-  unitPrice Decimal @db.Decimal(10, 2) // price actually paid per unitce
-
-  createdAt DateTime @default(now())
+  DELIVERED
+  CANCELLED
 }

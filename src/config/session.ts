@@ -1,6 +1,7 @@
 import session from "express-session";
 import connectPgSimple from "connect-pg-simple";
 import { Pool } from "pg";
+import type { Role } from "../../generated/prisma/client";
 
 const PgStore = connectPgSimple(session);
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
@@ -8,7 +9,7 @@ const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 declare module "express-session" {
   interface SessionData {
     userId: string; // match your Prisma id type
-    role: "USER" | "ADMIN" | "MODERATOR";
+    role: Role;
   }
 }
 

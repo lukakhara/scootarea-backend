@@ -10,6 +10,7 @@ import accessoriesRoutes from "./routes/accessories.routes";
 import partsRoutes from "./routes/sparePart.routes";
 import blogRoutes from "./routes/blog.routes";
 import authRoutes from "./routes/auth.routes";
+import orderRoutes from "./routes/order.routes";
 
 import { sessionMiddleware } from "./config/session";
 import { globalLimiter } from "./middleware/rateLimit.middleware";
@@ -28,9 +29,11 @@ app.get("/", async (req, res) => {
 
 app.use("/api/scooters", scooterRoutes);
 app.use("/api/accessories", accessoriesRoutes);
+app.use("/api/orders", orderRoutes);
 app.use("/api/parts", partsRoutes);
 app.use("/api/blog", blogRoutes);
 app.use("/api/auth", authRoutes);
+
 
 app.set("trust proxy", 1);
 app.use(globalLimiter);
