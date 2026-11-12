@@ -191,29 +191,45 @@ model Order {
   customerPhone String
   city          String
   street        String
-  postalCode    String?
-  country       String?     @default("Georgia")
+  postalCode    String
+  country       String     @default("Georgia")
   totalPrice    Decimal     @db.Decimal(10, 2)
   status        OrderStatus @default(PENDING)
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
   user          User        @relation(fields: [userId], references: [id])
   items         OrderItem[]
+
+
+  @@index([userId, createdAt])
+  @@index([status])
 }
 
 model OrderItem {
-  id          String     @id @default(uuid())
-  orderId     String
-  scooterId   String?
-  accessoryId String?
-  sparePartId String?
-  quantity    Int
-  createdAt   DateTime   @default(now())
-  unitPrice   Decimal    @db.Decimal(10, 2)
-  accessory   Accessory? @relation(fields: [accessoryId], references: [id])
-  order       Order      @relation(fields: [orderId], references: [id])
-  scooter     Scooter?   @relation(fields: [scooterId], references: [id])
-  SparePart   SparePart? @relation(fields: [sparePartId], references: [id])
+  id           String   @id @default(uuid())
+  orderId      String
+  scooterId    String?
+  accessoryId  String?
+  sparePartId  String?
+  // snapshot at purchase time, so later edits to the product don't change old orders
+  productName  String
+  productImage String?
+  quantity     Int
+  unitPrice    Decimal  @db.Decimal(10, 2)
+  createdAt    DateTime @default(now())
+
+  order     Order      @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  scooter   Scooter?   @relation(fields: [scooterId], references: [id], onDelete: Restrict)
+  accessory Accessory? @relation(fields: [accessoryId], references: [id], onDelete: Restrict)
+  sparePart SparePart? @relation(fields: [sparePartId], references: [id], onDelete: Restrict)
+
+  // one line per product per order (also indexes orderId)
+  @@unique([orderId, scooterId])
+  @@unique([orderId, accessoryId])
+  @@unique([orderId, sparePartId])
+  @@index([scooterId])
+  @@index([accessoryId])
+  @@index([sparePartId])
 }
 
 enum PostStatus {
