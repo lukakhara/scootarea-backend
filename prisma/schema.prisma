@@ -169,7 +169,7 @@ model BlogPost {
   slug        String
   excerpt     String?
   content     String
-  coverImage  String?
+  coverImage  String
   authorId    String
   publishedAt DateTime?
   createdAt   DateTime  @default(now())
