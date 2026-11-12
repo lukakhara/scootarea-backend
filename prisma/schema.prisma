@@ -2,26 +2,27 @@ generator client {
   provider = "prisma-client"
   output   = "../generated/prisma"
 }
-
 datasource db {
   provider = "postgresql"
 }
-
 model User {
-  id         String     @id @default(uuid())
-  name       String
-  email      String     @unique
-  password   String
-  phone      String?
-  role       Role       @default(USER)
-  isVerified Boolean    @default(false)
-  isBanned   Boolean    @default(false)
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
-  blogPosts  BlogPost[]
-  orders     Order[]
+  id              String     @id @default(uuid())
+  firstName       String
+  lastName        String
+  email           String     @unique
+  password        String
+  phone           String?
+  role            Role       @default(USER)
+  isVerified      Boolean    @default(false)
+  isBanned        Boolean    @default(false)
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+  termsAcceptedAt DateTime
+  termsVersion    String
+  blogPosts       BlogPost[]
+  orders          Order[]
+  addresses       Address[]
 }
-
 model Session {
   sid    String   @id @db.VarChar
   sess   Json     @db.Json
@@ -30,7 +31,6 @@ model Session {
   @@index([expire], map: "IDX_session_expire")
   @@map("session")
 }
-
 model Scooter {
   id                     String      @id @default(uuid())
   name                   String      @unique
@@ -64,7 +64,6 @@ model Scooter {
   orderItems             OrderItem[]
   spareParts             SparePart[] @relation("ScooterSpareParts")
 }
-
 model Accessory {
   id             String                 @id @default(uuid())
   brand          String
@@ -93,6 +92,22 @@ model AccessoryTranslation {
 
   @@unique([accessoryId, locale])
   @@index([locale, name])
+}
+
+enum AccessoryCategory {
+  SAFETY_GEAR
+  PROTECTION_MAINTENANCE
+  STORAGE_CARRYING
+  LIGHTING
+  COMFORT_UPGRADES
+  CHARGING_POWER
+  SPARE_PARTS
+}
+
+enum Gender {
+  MEN
+  WOMEN
+  UNISEX
 }
 
 model SparePart {
@@ -125,6 +140,27 @@ model SparePartTranslation {
 
   @@unique([sparePartId, locale])
   @@index([locale])
+}
+
+enum Role {
+  USER
+  MODERATOR
+  ADMIN
+}
+
+enum SparePartCategory {
+  BRAKE_PADS
+  TIRES_TUBES
+  MOTOR_PARTS
+  BATTERY_CELLS
+  WHEELS
+  BEARINGS
+  CABLES_WIRING
+  CONTROLLER
+  DISPLAY_PANEL
+  SUSPENSION_PARTS
+  SCREWS_BOLTS
+  OTHER
 }
 
 model BlogPost {
@@ -180,43 +216,6 @@ model OrderItem {
   SparePart   SparePart? @relation(fields: [sparePartId], references: [id])
 }
 
-enum Role {
-  USER
-  MODERATOR
-  ADMIN
-}
-
-enum AccessoryCategory {
-  SAFETY_GEAR
-  PROTECTION_MAINTENANCE
-  STORAGE_CARRYING
-  LIGHTING
-  COMFORT_UPGRADES
-  CHARGING_POWER
-  SPARE_PARTS
-}
-
-enum Gender {
-  MEN
-  WOMEN
-  UNISEX
-}
-
-enum SparePartCategory {
-  BRAKE_PADS
-  TIRES_TUBES
-  MOTOR_PARTS
-  BATTERY_CELLS
-  WHEELS
-  BEARINGS
-  CABLES_WIRING
-  CONTROLLER
-  DISPLAY_PANEL
-  SUSPENSION_PARTS
-  SCREWS_BOLTS
-  OTHER
-}
-
 enum PostStatus {
   DRAFT
   PUBLISHED
@@ -229,4 +228,18 @@ enum OrderStatus {
   SHIPPED
   DELIVERED
   CANCELLED
+}
+
+model Address {
+  id         String   @id @default(uuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  city       String
+  street     String
+  postalCode String
+  isDefault  Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([userId])
 }

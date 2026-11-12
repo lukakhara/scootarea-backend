@@ -11,23 +11,27 @@ import {
 const router = Router();
 
 // Customer
+//create order
 router.post(
   "/",
   requireAuth,
   validateBody(createOrderSchema),
   orderController.create,
 );
+//get all orders 
 router.get(
   "/",
   requireAuth,
   orderController.listMine,
 );
+// get one order
 router.get(
   "/:id",
   requireAuth,
   validateParams(idParamSchema),
   orderController.getOne,
 );
+// cancel order
 router.post(
   "/:id/cancel",
   requireAuth,

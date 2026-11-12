@@ -5,6 +5,7 @@ import {
   getCurrentUser,
 } from "@/services/auth.service";
 import { UserRegisterBody, UserLoginBody } from "@/schemas/auth.schema";
+import { regenerateSession, saveSession } from "@/utils/session";
 
 export async function registerUserController(req: Request, res: Response) {
   const body = req.validatedBody as UserRegisterBody;
@@ -13,22 +14,19 @@ export async function registerUserController(req: Request, res: Response) {
   return res.status(201).json(result);
 }
 
-export async function loginUserController(req: Request, res: Response) {
+export async function loginUserController(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
   const body = req.validatedBody as UserLoginBody;
   const user = await loginUser(body);
 
-  // new session ID on login (prevents session fixation)
-  await new Promise<void>((resolve, reject) =>
-    req.session.regenerate((err) => (err ? reject(err) : resolve())),
-  );
-
+  await regenerateSession(req);
   req.session.userId = user.id;
   req.session.role = user.role;
+  await saveSession(req); 
 
-  await new Promise<void>((resolve, reject) =>
-    req.session.save((err) => (err ? reject(err) : resolve())),
-  );
-  
   return res.status(200).json(user);
 }
 

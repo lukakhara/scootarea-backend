@@ -3,15 +3,32 @@ import { prisma } from "../lib/prisma";
 import { AppError } from "@/errors/AppError";
 import { ERROR_MESSAGES } from "@/errors/errorMessages";
 import argon2 from "argon2";
+import { Prisma } from "../../generated/prisma/browser";
 
 const publicUserSelect = {
   id: true,
   email: true,
-  name: true,
+  firstName: true,
+  lastName: true,
   phone: true,
   role: true,
   createdAt: true,
 } as const;
+
+export const baseUserSelect = {
+  id: true,
+  firstName: true,
+  lastName: true,
+  email: true,
+  role: true,
+  isVerified: true,
+} satisfies Prisma.UserSelect;
+
+export const profileUserSelect = {
+  ...baseUserSelect,
+  phone: true,
+  createdAt: true,
+} satisfies Prisma.UserSelect;
 
 export async function registerUser(data: UserRegisterBody) {
   const existingUser = await prisma.user.findUnique({
@@ -31,8 +48,11 @@ export async function registerUser(data: UserRegisterBody) {
       data: {
         email: data.email,
         password: hashedPassword,
-        name: data.name,
+        firstName: data.firstName,
+        lastName: data.lastName,
         phone: data.phone,
+        termsAcceptedAt: new Date(),
+        termsVersion: "1.0",
       },
       select: publicUserSelect,
     });
@@ -62,17 +82,20 @@ export async function loginUser(data: UserLoginBody) {
   return {
     id: user.id,
     email: user.email,
-    name: user.name,
+    firstname: user.firstName,
+    lastname: user.lastName,
     phone: user.phone,
     role: user.role,
     createdAt: user.createdAt,
   };
 }
 
-export async function getCurrentUser(userId: string) {
+export async function getCurrentUser(
+  userId: string,
+) {
   const user = await prisma.user.findUnique({
     where: { id: userId },
-    select: publicUserSelect,
+    select: profileUserSelect,
   });
   if (!user) throw new AppError(ERROR_MESSAGES.UNAUTHORIZED, 401);
   return user;
