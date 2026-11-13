@@ -22,12 +22,10 @@ export const createOrderSchema = z.object({
     .string()
     .trim()
     .regex(/^\+?[0-9\s-]{7,20}$/, "Invalid phone number"),
-
   city: z.string().trim().min(2).max(100),
   street: z.string().trim().min(2).max(200),
-  postalCode: z.string().trim().max(20).optional(),
+  postalCode: z.string().trim().max(20),
   country: z.string().trim().max(100).default("Georgia"),
-
   items: z.array(orderItemSchema).min(1, "No items").max(50),
 });
 
