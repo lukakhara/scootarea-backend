@@ -4,10 +4,10 @@ import type {
   CreateOrderInput,
   OrderItemInput,
   ListOrdersQuery,
+  ProductType,
 } from "../schemas/order.schema";
 import { ERROR_MESSAGES } from "@/errors/errorMessages";
 import { prisma } from "@/lib/prisma";
-
 type Tx = Prisma.TransactionClient;
 
 type Priced = {
@@ -23,80 +23,81 @@ const effectivePrice = (p: Priced) => {
   return saleActive ? p.discountPrice! : p.price;
 };
 
-// Checks product, atomically reserves stock, returns server-side price + FK ref
-const reserveItem = async (tx: Tx, item: OrderItemInput) => {
-  const { id, quantity } = item;
-  const stockWhere = { id, stock: { gte: quantity } };
-  const decrement = { stock: { decrement: quantity } };
+type ProductRow = { id: string; name: string; price: Prisma.Decimal };
 
-  switch (item.type) {
-    case "scooter": {
-      const p = await tx.scooter.findUnique({ where: { id } });
-      if (!p) throw new AppError(ERROR_MESSAGES.NOT_FOUND, 404);
-      const r = await tx.scooter.updateMany({
-        where: stockWhere,
-        data: decrement,
-      });
-      if (r.count === 0) throw new AppError(ERROR_MESSAGES.OUT_OF_STOCK, 404);
-      return { unitPrice: effectivePrice(p), ref: { scooterId: id } };
-    }
-    case "accessory": {
-      const p = await tx.accessory.findUnique({ where: { id } });
-      if (!p) throw new AppError(ERROR_MESSAGES.NOT_FOUND, 404);
-      const r = await tx.accessory.updateMany({
-        where: stockWhere,
-        data: decrement,
-      });
-      if (r.count === 0) throw new AppError(ERROR_MESSAGES.OUT_OF_STOCK, 404);
-      return { unitPrice: effectivePrice(p), ref: { accessoryId: id } };
-    }
-    case "sparePart": {
-      const p = await tx.sparePart.findUnique({ where: { id } });
-      if (!p) throw new AppError(ERROR_MESSAGES.NOT_FOUND, 404);
-      const r = await tx.sparePart.updateMany({
-        where: stockWhere,
-        data: decrement,
-      });
-      if (r.count === 0) throw new AppError(ERROR_MESSAGES.OUT_OF_STOCK, 404);
-      return { unitPrice: effectivePrice(p), ref: { sparePartId: id } };
-    }
-  }
+const findProducts: Record<
+  ProductType,
+  (ids: string[]) => Promise<ProductRow[]>
+> = {
+  SCOOTER: (ids) =>
+    prisma.scooter.findMany({
+      where: { id: { in: ids } },
+      select: { id: true, name: true, price: true },
+    }),
+  ACCESSORY: (ids) =>
+    prisma.accessory.findMany({
+      where: { id: { in: ids } },
+      select: { id: true, name: true, price: true },
+    }),
+  SPARE_PART: (ids) =>
+    prisma.sparePart.findMany({
+      where: { id: { in: ids } },
+      select: { id: true, name: true, price: true },
+    }),
 };
 
-export const createOrder = (input: CreateOrderInput, userId: string) =>
-  prisma.$transaction(async (tx) => {
-    let total = new Prisma.Decimal(0);
-    const orderItems: Prisma.OrderItemCreateWithoutOrderInput[] = [];
+export async function createOrder(userId: string, input: CreateOrderInput) {
+  const idsByType = new Map<ProductType, string[]>();
+  for (const { productType, productId } of input.items) {
+    idsByType.set(productType, [
+      ...(idsByType.get(productType) ?? []),
+      productId,
+    ]);
+  }
 
-    for (const item of input.items) {
-      const { unitPrice, ref } = await reserveItem(tx, item);
-      total = total.add(unitPrice.mul(item.quantity));
-      orderItems.push({
-        quantity: item.quantity,
-        unitPrice,
-        ...(ref.scooterId && { scooter: { connect: { id: ref.scooterId } } }),
-        ...(ref.accessoryId && {
-          accessory: { connect: { id: ref.accessoryId } },
-        }),
-        ...(ref.sparePartId && {
-          SparePart: { connect: { id: ref.sparePartId } },
-        }),
-      });
+  const catalog = new Map<string, ProductRow>();
+  for (const [type, ids] of idsByType) {
+    const rows = await findProducts[type](ids);
+    rows.forEach((row) => catalog.set(`${type}:${row.id}`, row));
+  }
+
+  const lines = input.items.map((item) => {
+    const product = catalog.get(`${item.productType}:${item.productId}`);
+    if (!product) {
+      throw new Error(
+        `Product not found: ${item.productType} ${item.productId}`,
+      );
     }
-
-    const { items: _items, ...customer } = input;
-
-    return tx.order.create({
-      data: {
-        ...customer,
-        userId: userId,
-        totalPrice: total,
-        status: OrderStatus.PENDING,
-        items: { create: orderItems },
-      },
-      include: { items: true },
-    });
+    return {
+      productType: item.productType,
+      productId: item.productId,
+      name: product.name,
+      unitPrice: product.price,
+      quantity: item.quantity,
+    };
   });
+
+  const total = lines.reduce(
+    (sum, l) => sum.plus(l.unitPrice.mul(l.quantity)),
+    new Prisma.Decimal(0),
+  );
+
+ return prisma.order.create({
+  data: {
+    userId,
+    customerName: input.customerName,
+    customerEmail: input.customerEmail,
+    customerPhone: input.customerPhone,
+    city: input.city,
+    street: input.street,
+    postalCode: input.postalCode,
+    country: input.country,
+    totalPrice: total,
+    items: { create: lines },
+  },
+  include: { items: true },
+});
+}
 
 const orderInclude = {
   items: { include: { scooter: true, accessory: true, SparePart: true } },

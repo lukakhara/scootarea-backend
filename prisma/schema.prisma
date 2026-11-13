@@ -2,9 +2,11 @@ generator client {
   provider = "prisma-client"
   output   = "../generated/prisma"
 }
+
 datasource db {
   provider = "postgresql"
 }
+
 model User {
   id              String     @id @default(uuid())
   firstName       String
@@ -23,6 +25,7 @@ model User {
   orders          Order[]
   addresses       Address[]
 }
+
 model Session {
   sid    String   @id @db.VarChar
   sess   Json     @db.Json
@@ -31,6 +34,7 @@ model Session {
   @@index([expire], map: "IDX_session_expire")
   @@map("session")
 }
+
 model Scooter {
   id                     String      @id @default(uuid())
   name                   String      @unique
@@ -64,6 +68,7 @@ model Scooter {
   orderItems             OrderItem[]
   spareParts             SparePart[] @relation("ScooterSpareParts")
 }
+
 model Accessory {
   id             String                 @id @default(uuid())
   brand          String
@@ -183,6 +188,12 @@ model BlogPost {
   @@unique([slug, locale])
 }
 
+enum ProductType {
+  SCOOTER
+  ACCESSORY
+  SPARE_PART
+}
+
 model Order {
   id            String      @id @default(uuid())
   userId        String
@@ -192,7 +203,7 @@ model Order {
   city          String
   street        String
   postalCode    String
-  country       String     @default("Georgia")
+  country       String      @default("Georgia")
   totalPrice    Decimal     @db.Decimal(10, 2)
   status        OrderStatus @default(PENDING)
   createdAt     DateTime    @default(now())
@@ -200,13 +211,12 @@ model Order {
   user          User        @relation(fields: [userId], references: [id])
   items         OrderItem[]
 
-
   @@index([userId, createdAt])
   @@index([status])
 }
 
 model OrderItem {
-  id           String   @id @default(uuid())
+  id           String      @id @default(uuid())
   orderId      String
   scooterId    String?
   accessoryId  String?
@@ -215,8 +225,9 @@ model OrderItem {
   productName  String
   productImage String?
   quantity     Int
-  unitPrice    Decimal  @db.Decimal(10, 2)
-  createdAt    DateTime @default(now())
+  unitPrice    Decimal     @db.Decimal(10, 2)
+  createdAt    DateTime    @default(now())
+  productType  ProductType
 
   order     Order      @relation(fields: [orderId], references: [id], onDelete: Cascade)
   scooter   Scooter?   @relation(fields: [scooterId], references: [id], onDelete: Restrict)
