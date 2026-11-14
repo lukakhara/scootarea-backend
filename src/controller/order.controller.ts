@@ -12,9 +12,9 @@ import {
 } from "../schemas/order.schema";
 
 export const create = async (req: Request, res: Response) => {
-  const input = createOrderSchema.parse(req.body);
   const userId = req.session.userId;
-  const result = await orderService.createOrder(input, userId!);
+  const input = createOrderSchema.parse(req.body);
+  const result = await orderService.createOrder( userId!,input);
   res.status(201).json(result);
 };
 

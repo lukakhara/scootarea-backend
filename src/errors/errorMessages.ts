@@ -27,4 +27,7 @@ export const ERROR_MESSAGES = {
   INVALID_CSRF_TOKEN: "Invalid CSRF token",
   OUT_OF_STOCK: "Out of stock",
   CANNOT_CANCEL_THIS_ORDER: "Cannot cancel this order",
+  PRODUCT_NOT_FOUND:"product_not_found",
+  INSUFFICIENT_STOCK:"insufficient_stock" ,
+  INVALID_STATUS_CHANGE: "invalid_status_change",
 };

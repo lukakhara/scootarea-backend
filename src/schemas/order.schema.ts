@@ -7,9 +7,11 @@ const statusValues = Object.values(OrderStatus) as [
 ];
 export const orderStatusSchema = z.enum(statusValues);
 
-const quantity = z.number().int().min(1).max(100);
 export const productTypeSchema = z.enum(["SCOOTER", "ACCESSORY", "SPARE_PART"]);
 export type ProductType = z.infer<typeof productTypeSchema>;
+
+export const fulfillmentMethodSchema = z.enum(["DELIVERY", "STORE_PICKUP"]);
+export type FulfillmentMethod = z.infer<typeof fulfillmentMethodSchema>;
 
 export const OrderItemSchema = z.object({
   productType: productTypeSchema,
@@ -17,21 +19,31 @@ export const OrderItemSchema = z.object({
   quantity: z.number().int().min(1).max(20),
 });
 
-export const createOrderSchema = z.object({
-  customerName: z.string().trim().min(2).max(100),
+// Fields shared by both fulfillment types
+const orderBase = {
+  customerFirstName: z.string().trim().min(2).max(100),
+  customerLastName: z.string().trim().min(2).max(100),
   customerEmail: z.email().trim().toLowerCase(),
   customerPhone: z
     .string()
     .trim()
     .regex(/^\+?[0-9\s-]{7,20}$/, "Invalid phone number"),
-  city: z.string().trim().min(2).max(100),
-  street: z.string().trim().min(2).max(200),
-  postalCode: z.string().trim().max(20),
-  country: z.string().trim().max(100).default("Georgia"),
+  commentary: z.string().trim().max(500).optional(),
   items: z.array(OrderItemSchema).min(1, "No items").max(50),
-});
+};
 
-
+export const createOrderSchema = z.discriminatedUnion("delivery", [
+  z.object({
+    ...orderBase,
+    delivery: z.literal("DELIVERY"),
+    city: z.string().trim().min(2).max(100),
+    street: z.string().trim().min(2).max(200),
+  }),
+  z.object({
+    ...orderBase,
+    delivery: z.literal("STORE_PICKUP"),
+  }),
+]);
 
 export const idParamSchema = z.object({
   id: z.uuid(),
