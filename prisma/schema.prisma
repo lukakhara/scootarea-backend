@@ -24,19 +24,24 @@ model User {
   blogPosts       BlogPost[]
   orders          Order[]
   addresses       Address[]
+  sessions        Session[]
 }
 
 model Session {
   sid        String   @id @db.VarChar
   sess       Json     @db.Json
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
   expire     DateTime @db.Timestamp(6)
   browser    String?
   os         String?
   device     String?
+  ip         String?
   createdAt  DateTime @default(now())
   lastUsedAt DateTime @default(now())
 
   @@index([expire], map: "IDX_session_expire")
+  @@index([userId])
   @@map("session")
 }
 

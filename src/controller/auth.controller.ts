@@ -6,6 +6,7 @@ import {
 } from "@/services/auth.service";
 import { UserRegisterBody, UserLoginBody } from "@/schemas/auth.schema";
 import { regenerateSession, saveSession } from "@/utils/session";
+import { sessionService } from "@/services/userSession.service";
 
 export async function registerUserController(req: Request, res: Response) {
   const body = req.validatedBody as UserRegisterBody;
@@ -25,7 +26,9 @@ export async function loginUserController(
   await regenerateSession(req);
   req.session.userId = user.id;
   req.session.role = user.role;
-  await saveSession(req); 
+  await saveSession(req);
+  //session device info
+  await sessionService.attachDevice(req, user.id);
 
   return res.status(200).json(user);
 }
