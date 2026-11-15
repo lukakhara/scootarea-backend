@@ -12,6 +12,7 @@ import blogRoutes from "./routes/blog.routes";
 import authRoutes from "./routes/auth.routes";
 import orderRoutes from "./routes/order.routes";
 import addressRoutes from "./routes/address.routes";
+import sessionsRoutes from "./routes/userSession.routes";
 import { sessionMiddleware } from "./config/session";
 import { globalLimiter } from "./middleware/rateLimit.middleware";
 import { errorHandler } from "./middleware/errorHandler";
@@ -35,6 +36,7 @@ app.use("/api/parts", partsRoutes);
 app.use("/api/blog", blogRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/address", addressRoutes);
+app.use("/api/sessions", sessionsRoutes);
 
 
 

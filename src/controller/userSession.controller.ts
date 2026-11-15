@@ -12,4 +12,8 @@ export const sessionController = {
     if (!ok) return res.status(404).json({ message: "Session not found" });
     res.status(204).end();
   },
+  async revokeOthers(req: Request, res: Response) {
+  await sessionService.revokeOthers(req.session.userId!, req.sessionID);
+  res.status(204).end();
+},
 };
