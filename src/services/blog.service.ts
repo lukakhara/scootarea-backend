@@ -1,7 +1,7 @@
 import { prisma } from "../lib/prisma"; // adjust path
 import type { BlogQuery, BlogIdParam } from "../schemas/blog.schema";
 
-const authorSelect = { id: true, name: true }; // never expose password/email
+const authorSelect = { id: true, firstName: true, lastName: true }; // never expose password/email
 
 export async function getBlogPosts({ locale, page, limit, search }: BlogQuery) {
   const where = {

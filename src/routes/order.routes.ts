@@ -20,7 +20,7 @@ router.post(
 );
 //get all orders 
 router.get(
-  "/",
+  "/me",
   requireAuth,
   orderController.listMine,
 );

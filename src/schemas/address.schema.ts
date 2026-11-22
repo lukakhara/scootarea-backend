@@ -13,11 +13,6 @@ export const addressSchema = z.object({
     .trim()
     .min(1, "Street is required")
     .max(200, "Street is too long"),
-  postalCode: z
-    .string()
-    .trim()
-    .min(1, "Postal code is required")
-    .max(20, "Postal code is too long"),
   isDefault: z.boolean().default(false),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),

@@ -14,20 +14,22 @@ import {
 export const create = async (req: Request, res: Response) => {
   const userId = req.session.userId;
   const input = createOrderSchema.parse(req.body);
-  const result = await orderService.createOrder( userId!,input);
+  const result = await orderService.createOrder(userId!, input);
   res.status(201).json(result);
 };
 
 export const listMine = async (req: Request, res: Response) => {
-  const { id } = req.session.userId;
-  res.json(await orderService.getUserOrders(id));
+  const orders = await orderService.getUserOrders(req.session.userId!);
+  res.json(orders);
 };
 
 export const getOne = async (req: Request, res: Response) => {
   const { id } = idParamSchema.parse(req.params) as idParam;
-  const userId = req.session.userId;
-  const role = req.session.role;
-  res.json(await orderService.getOrderById(id, { userId, role}));
+  const order = await orderService.getOrderById(id, {
+    id: req.session.userId!,
+    role: req.session.role!,
+  });
+  res.json(order);
 };
 
 export const cancel = async (req: Request, res: Response) => {
