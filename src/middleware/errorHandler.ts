@@ -1,7 +1,7 @@
 import type { ErrorRequestHandler } from "express";
-import { AppError } from "../errors/AppError";
-import { ERROR_MESSAGES } from "../errors/errorMessages";
-import { Prisma } from "../../generated/prisma/client";
+import { AppError } from "@/errors/AppError";
+import { ERROR_MESSAGES } from "@/errors/errorMessages";
+import { Prisma } from "@/generated/prisma/client";
 
 export const errorHandler: ErrorRequestHandler = (err, _req, res, next) => {
   if (res.headersSent) {

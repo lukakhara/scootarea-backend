@@ -1,6 +1,6 @@
 // services/scooter.service.ts
 import { prisma } from "../lib/prisma"; // adjust to your prisma client export
-import { Prisma } from "../../generated/prisma/client"; // adjust to your generated path
+import { Prisma } from "@/generated/prisma/client"; // adjust to your generated path
 import type {
   ScooterInput,
   ScooterQuery,
@@ -94,11 +94,8 @@ export async function updateScooter(id: string, data: UpdateScooterInput) {
   });
 }
 
-
 function parseSort(sort: string): Prisma.ScooterOrderByWithRelationInput {
   const isDescending = sort.startsWith("-");
   const field = isDescending ? sort.slice(1) : sort;
   return { [field]: isDescending ? "desc" : "asc" };
 }
-
-

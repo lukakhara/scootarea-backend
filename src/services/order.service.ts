@@ -1,7 +1,7 @@
 import { AppError } from "@/errors/AppError";
 import { ERROR_MESSAGES } from "@/errors/errorMessages";
 import { prisma } from "@/lib/prisma";
-import { Prisma, OrderStatus } from "../../generated/prisma/client";
+import { Prisma, OrderStatus } from "@/generated/prisma/client";
 import type {
   CreateOrderInput,
   ListOrdersQuery,

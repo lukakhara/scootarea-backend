@@ -1,6 +1,6 @@
 // services/accessory.service.ts
 import { prisma } from "../lib/prisma"; // adjust to your prisma client export
-import type { Prisma } from "../../generated/prisma/client"; // adjust to your generated path
+import type { Prisma } from "@/generated/prisma/client"; // adjust to your generated path
 import type {
   AccessoryInput,
   AccessoryQuery,
@@ -10,10 +10,6 @@ import type {
 import { AppError } from "@/errors/AppError";
 import { ERROR_MESSAGES } from "@/errors/errorMessages";
 import { flatten, parseSort, translationInclude } from "@/lib/translations";
-
-
-
-
 
 export async function getAccessories(query: AccessoryQuery) {
   const {

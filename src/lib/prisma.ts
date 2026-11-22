@@ -1,15 +1,10 @@
-import { PrismaClient } from "../../generated/prisma/client";
+// src/lib/prisma.ts
 import "dotenv/config";
 import { PrismaPg } from "@prisma/adapter-pg";
+import { PrismaClient } from "../generated/prisma/client.js";
 
+const adapter = new PrismaPg({
+  connectionString: process.env.DATABASE_URL!,
+});
 
-const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 export const prisma = new PrismaClient({ adapter });
-
-async function main() {
- 
-}
-
-main()
-  .catch(console.error)
-  .finally(() => prisma.$disconnect());

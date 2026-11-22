@@ -1,7 +1,7 @@
 import session from "express-session";
 import connectPgSimple from "connect-pg-simple";
 import { Pool } from "pg";
-import type { Role } from "../../generated/prisma/client";
+import type { Role } from "@/generated/prisma/client";
 
 const PgStore = connectPgSimple(session);
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
@@ -14,7 +14,11 @@ declare module "express-session" {
 }
 
 export const sessionMiddleware = session({
-  store: new PgStore({ pool, tableName: "session", createTableIfMissing: true }),
+  store: new PgStore({
+    pool,
+    tableName: "session",
+    createTableIfMissing: true,
+  }),
   name: "sid",
   secret: process.env.SESSION_SECRET!,
   resave: false,

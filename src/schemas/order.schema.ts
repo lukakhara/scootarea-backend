@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { OrderStatus } from "../../generated/prisma/client";
+import { OrderStatus } from "@/generated/prisma/client";
 
 const statusValues = Object.values(OrderStatus) as [
   OrderStatus,

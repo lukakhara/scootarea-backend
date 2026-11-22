@@ -15,7 +15,7 @@ import {
   validateBody,
   validateParams,
   validateQuery,
-} from "@/middleware/validate.middleware";
+} from "../middleware/validate.middleware";
 
 const router = Router();
 

@@ -1,4 +1,4 @@
-import { Prisma, type FulfillmentMethod } from "../../generated/prisma/client";
+import { Prisma, type FulfillmentMethod } from "@/generated/prisma/client";
 
 export const FREE_DELIVERY_THRESHOLD = new Prisma.Decimal(1500);
 export const DELIVERY_FEE = new Prisma.Decimal(10); // GEL, placeholder
