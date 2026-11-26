@@ -3,7 +3,7 @@ import { prisma } from "../lib/prisma";
 import { AppError } from "@/errors/AppError";
 import { ERROR_MESSAGES } from "@/errors/errorMessages";
 import argon2 from "argon2";
-import { Prisma } from "../../generated/prisma/browser";
+import { Prisma } from "@/generated/prisma/browser";
 
 const publicUserSelect = {
   id: true,
