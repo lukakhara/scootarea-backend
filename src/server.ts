@@ -17,13 +17,26 @@ import { sessionMiddleware } from "./config/session";
 import { globalLimiter } from "./middleware/rateLimit.middleware";
 import { errorHandler } from "./middleware/errorHandler";
 
-
-
 const app = express();
+
+const allowedOrigins = [
+  "http://localhost:3000",
+  process.env.CLIENT_URL, 
+].filter(Boolean) as string[];
 
 app.set("trust proxy", 1); // first
 
-app.use(cors({ origin: "http://localhost:3000", credentials: true }));
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      callback(new Error(`CORS blocked: ${origin}`));
+    },
+    credentials: true,
+  }),
+);
 app.use(express.json());
 app.use(requestLogger); // now runs before routes, so it actually logs requests
 app.use(sessionMiddleware);
@@ -38,8 +51,6 @@ app.use("/api/auth", authRoutes);
 app.use("/api/address", addressRoutes);
 app.use("/api/sessions", sessionsRoutes);
 
-
-
 // 404 handler — after all real routes
 app.use((req, res, next) => {
   next(new AppError(ERROR_MESSAGES.ROUTE_NOT_FOUND, 404));
@@ -52,8 +63,6 @@ app.get("/", async (req, res) => {
   res.send("server is running 🏃‍♀️‍➡️🥳");
 });
 
-
 app.listen(5000, () => {
   logger.info(`Server running 🏃‍♀️‍➡️🏃‍♀️‍➡️`);
 });
-
