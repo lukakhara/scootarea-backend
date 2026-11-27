@@ -52,3 +52,13 @@ export const sessionService = {
     });
   },
 };
+
+
+export async function getUserStats(userId: string) {
+  const [orders, addresses] = await Promise.all([
+    prisma.order.count({ where: { userId } }),
+    prisma.address.count({ where: { userId } }),
+    
+  ]);
+  return { orders, addresses };
+}

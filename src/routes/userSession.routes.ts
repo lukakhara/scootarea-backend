@@ -6,7 +6,9 @@ const router = Router();
 
 router.use(requireAuth);
 router.get("/", sessionController.list);
+router.get("/stats", requireAuth, sessionController.getStats);
 router.delete("/others", sessionController.revokeOthers);
 router.delete("/:sid", sessionController.revoke);
+
 
 export default router;
